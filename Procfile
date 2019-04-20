@@ -1,1 +1,1 @@
-web: python3 main.py
+worker: venv/bin/python main.py
