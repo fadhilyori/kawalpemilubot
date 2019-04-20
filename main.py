@@ -63,7 +63,7 @@ def update():
 
 def tampilData():
     data = update()
-    text = "*[Kawal Pemilu Bot 2019]*\n";
+    text = "*[Kawal Pemilu Bot 2019]*\n"
     text += "Last update " + last_update + "\n"
     text += "Hasil : \n\n"
     text += "--------------------------------------------------\n"
@@ -97,13 +97,13 @@ def handle(msg):
         found = 0
         for member in members:
             if member['chat_id'] == chat_id:
+                result = bot.sendMessage(member['chat_id'], tampilData(), parse_mode='Markdown')
+                member.update({'message_id': result['message_id']})
                 found += 1
+                break
         if found == 0:
             result = bot.sendMessage(chat_id, tampilData(), parse_mode='Markdown')
             members.append({'chat_id': chat_id, 'message_id': result['message_id']})
-        else:
-            result = bot.sendMessage(member['chat_id'], tampilData(), parse_mode='Markdown')
-            member.update({'message_id': result['message_id']})
     print(members)
 
 MessageLoop(bot, handle).run_as_thread()
