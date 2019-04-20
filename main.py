@@ -1,5 +1,6 @@
 import telepot
-import time
+import pytz
+from datetime import datetime
 from telepot.loop import MessageLoop
 import requests
 
@@ -7,11 +8,12 @@ bot = telepot.Bot('721772446:AAGm3bJ-IEYUrv0099aXoOfCGGcpmFtt2ME')
 
 members = []
 
-last_update = time.asctime(time.localtime(time.time()))
+tz = pytz.timezone('Asia/Jakarta')
+last_update = datetime.now(tz).strftime('%d %B %Y %H:%M:%S WIB')
 
 def getData():
     r = requests.get("https://kawal-c1.appspot.com/api/c/0")
-    last_update = time.asctime(time.localtime(time.time()))
+    last_update = datetime.now(tz).strftime('%d %B %Y %H:%M:%S WIB')
     return r.json()
 
 def update():
