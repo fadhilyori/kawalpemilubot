@@ -1,1 +1,1 @@
-worker: venv/bin/python main.py
+web: python main.py
