@@ -1,10 +1,11 @@
+import os
 import telepot
 import pytz, time
 from datetime import datetime
 from telepot.loop import MessageLoop
 import requests
 
-bot = telepot.Bot('721772446:AAGm3bJ-IEYUrv0099aXoOfCGGcpmFtt2ME')
+bot = telepot.Bot(os.getenv("TOKEN"))
 
 members = []
 
@@ -69,20 +70,20 @@ def tampilData():
     text += "--------------------------------------------------\n"
     text += "*Paslon 01*\n*Ir.Joko Widodo & KH.Maruf Amin*\n"
     text += "--------------------------------------------------\n"
-    text += "Total Suara\t: {} \n".format(data['total_pas1'])
+    text += "Total Suara\t: " + format_number(data['total_pas1']) + " \n"
     text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas1']/(data['total_sah']+data['total_tSah'])*100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
     text += "*Paslon 02*\n*H.Prabowo Subianto & Sandiaga Uno*\n"
     text += "--------------------------------------------------\n"
-    text += "Total Suara\t: {} \n".format(data['total_pas2'])
+    text += "Total Suara\t: " + format_number(data['total_pas2']) + " \n"
     text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas2']/(data['total_sah']+data['total_tSah'])*100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
-    text += "Total Suara Sah\t: {}\n".format(data['total_sah'])
-    text += "Total Suara Tidak Sah\t: {}\n".format(data['total_tSah'])
-    text += "TPS di Proses\t: {}\n".format(data['tps_proses'])
-    text += "Total TPS\t: {}\n".format(data['total_tps'])
+    text += "Total Suara Sah\t: " + format_number(data['total_sah']) + "\n"
+    text += "Total Suara Tidak Sah\t: " + format_number(data['total_tSah']) + "\n"
+    text += "TPS di Proses\t: " + format_number(data['tps_proses']) + "\n"
+    text += "Total TPS\t: " + format_number(data['total_tps']) + "\n"
     text += "--------------------------------------------------\n"
     text += "Note\t: Prosentase lebih dari 100% karena ada data jumlah suara sah dari kedua paslon di beberapa daerah tidak sama dengan total suara sah didaerah tersebut\n"
     text += "Sumber data\t: kawalpemilu.org\n\n"
@@ -109,15 +110,15 @@ def handle(msg):
 MessageLoop(bot, handle).run_as_thread()
 print('Bot was ready')
 
-#adding format number
-def formatNumber(number):
+
+def format_number(number):
     y = str(number)
-    if len(y) <= 3 :
-        return  y     
-    else :
+    if len(y) <= 3:
+        return y
+    else:
         p = y[-3:]
         q = y[:-3]
-        return   formatNumber(q) + '.' + p
+        return format_number(q) + ',' + p
 
 
 while True:
