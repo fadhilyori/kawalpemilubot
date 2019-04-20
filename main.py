@@ -109,6 +109,17 @@ def handle(msg):
 MessageLoop(bot, handle).run_as_thread()
 print('Bot was ready')
 
+#adding format number
+def formatNumber(number):
+    y = str(number)
+    if len(y) <= 3 :
+        return  y     
+    else :
+        p = y[-3:]
+        q = y[:-3]
+        return   formatNumber(q) + '.' + p
+
+
 while True:
     for member in members:
         if member['message_id'] == 'Null':
