@@ -4,10 +4,9 @@ import pytz, time
 from datetime import datetime
 from telepot.loop import MessageLoop
 import requests
-from flask import Flask, render_template
 
 bot = telepot.Bot(os.getenv("TOKEN"))
-debug = True
+debug = False
 
 members = []
 
@@ -192,17 +191,7 @@ def set_debug(bol):
     debug = bol
 
 
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-
-# run Flask app
 if __name__ == "__main__":
-    app.run()
     MessageLoop(bot, handle).run_as_thread()
     print('Bot was ready')
     while True:
