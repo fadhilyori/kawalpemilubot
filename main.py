@@ -4,24 +4,28 @@ import pytz, time
 from datetime import datetime
 from telepot.loop import MessageLoop
 import requests
+from flask import Flask, render_template
 
 bot = telepot.Bot(os.getenv("TOKEN"))
+debug = True
 
 members = []
 
 tz = pytz.timezone('Asia/Jakarta')
 last_update = datetime.now(tz).strftime('%d %B %Y %H:%M:%S WIB')
 
+
 def getData():
     r = requests.get("https://kawal-c1.appspot.com/api/c/0")
     last_update = datetime.now(tz).strftime('%d %B %Y %H:%M:%S WIB')
     return r.json()
 
+
 def update():
     data = getData()
     dataChild = data['children']
     currentChild = []
-    for i in range(0,len(dataChild)):
+    for i in range(0, len(dataChild)):
         currentChild.append({
             'id': dataChild[i][0],
             'nama_provinsi': dataChild[i][1],
@@ -62,6 +66,7 @@ def update():
         'tps_proses': tpsProses
     }
 
+
 def tampilData():
     data = update()
     text = "*[Kawal Pemilu Bot 2019]*\n"
@@ -71,13 +76,13 @@ def tampilData():
     text += "*Paslon 01*\n*Ir.Joko Widodo & KH.Maruf Amin*\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara\t: " + format_number(data['total_pas1']) + " \n"
-    text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas1']/data['total_sah']*100)
+    text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas1'] / data['total_sah'] * 100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
     text += "*Paslon 02*\n*H.Prabowo Subianto & Sandiaga Uno*\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara\t: " + format_number(data['total_pas2']) + " \n"
-    text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas2']/data['total_sah']*100)
+    text += "Prosentase\t: {0:.2f} %\n".format(data['total_pas2'] / data['total_sah'] * 100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara Sah\t: " + format_number(data['total_sah']) + "\n"
@@ -90,6 +95,7 @@ def tampilData():
     text += "by MitraAnakNegeri and @fadhilyori"
     return text
 
+
 def get_data_from_province(province=None):
     if province == None:
         return "Silahkan sebutkan nama provinsi"
@@ -99,18 +105,12 @@ def get_data_from_province(province=None):
         province_id = 0
         nama_provinsi = ""
         total_tps = 0
-        for i in range(0,len(dataChild)):
+        for i in range(0, len(dataChild)):
             if dataChild[i][1] == province.upper():
                 province_id = dataChild[i][0]
                 nama_provinsi = dataChild[i][1]
                 total_tps = dataChild[i][2]
-        totalSuaraPaslon1 = 0
-        totalSuaraPaslon2 = 0
-        totalSah = 0
-        totalTidakSah = 0
         dataPerolehan = data['data']
-        totalTps = 0
-        tpsProses = 0
         for item in dataPerolehan:
             if int(item) == province_id:
                 return {
@@ -124,6 +124,7 @@ def get_data_from_province(province=None):
                 }
         return "Provinsi tidak terdaftar"
 
+
 def tampilDataProvince(province):
     data = get_data_from_province(province)
     if data == "Provinsi tidak terdaftar":
@@ -135,13 +136,13 @@ def tampilDataProvince(province):
     text += "*Paslon 01*\n*Ir.Joko Widodo & KH.Maruf Amin*\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara\t: " + format_number(data['pas1']) + " \n"
-    text += "Prosentase\t: {0:.2f} %\n".format(data['pas1']/data['sah']*100)
+    text += "Prosentase\t: {0:.2f} %\n".format(data['pas1'] / data['sah'] * 100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
     text += "*Paslon 02*\n*H.Prabowo Subianto & Sandiaga Uno*\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara\t: " + format_number(data['pas2']) + " \n"
-    text += "Prosentase\t: {0:.2f} %\n".format(data['pas2']/data['sah']*100)
+    text += "Prosentase\t: {0:.2f} %\n".format(data['pas2'] / data['sah'] * 100)
     text += "--------------------------------------------------\n\n"
     text += "--------------------------------------------------\n"
     text += "Total Suara Sah\t: " + format_number(data['sah']) + "\n"
@@ -154,9 +155,12 @@ def tampilDataProvince(province):
     text += "by MitraAnakNegeri and @fadhilyori"
     return text
 
+
 def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     text = msg['text']
+    if debug == True:
+        print(msg)
     if text == "/request":
         found = 0
         for member in members:
@@ -173,9 +177,6 @@ def handle(msg):
         print({'chat_id': chat_id, 'sender': msg['from']['first_name']})
         bot.sendMessage(chat_id, tampilDataProvince(text), parse_mode='Markdown')
 
-MessageLoop(bot, handle).run_as_thread()
-print('Bot was ready')
-
 
 def format_number(number):
     y = str(number)
@@ -187,14 +188,31 @@ def format_number(number):
         return format_number(q) + ',' + p
 
 
-while True:
-    for member in members:
-        if member['message_id'] == 'Null':
-            result = bot.sendMessage(member['chat_id'], tampilData(), parse_mode='Markdown')
-            member.update({'message_id': result['message_id']})
-        else:
-            try:
-                bot.editMessageText((member['chat_id'], member['message_id']), tampilData(), parse_mode='Markdown')
-            except Exception as e:
-                pass
-    time.sleep(10)
+def set_debug(bol):
+    debug = bol
+
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+# run Flask app
+if __name__ == "__main__":
+    app.run()
+    MessageLoop(bot, handle).run_as_thread()
+    print('Bot was ready')
+    while True:
+        for member in members:
+            if member['message_id'] == 'Null':
+                result = bot.sendMessage(member['chat_id'], tampilData(), parse_mode='Markdown')
+                member.update({'message_id': result['message_id']})
+            else:
+                try:
+                    bot.editMessageText((member['chat_id'], member['message_id']), tampilData(), parse_mode='Markdown')
+                except Exception as e:
+                    pass
+        time.sleep(10)
